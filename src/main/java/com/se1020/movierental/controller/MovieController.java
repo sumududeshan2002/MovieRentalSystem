@@ -40,7 +40,7 @@ public class MovieController {
     @GetMapping("/detail/{movieId}")
     public String movieDetail(@PathVariable String movieId, Model model) {
         model.addAttribute("movie", movieService.getMovieById(movieId));
-        return "movie/movie-detail";
+        return "movie/admin/movie-detail";
     }
 
     @GetMapping("/admin/list")
