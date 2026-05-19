@@ -59,7 +59,7 @@
                     <td>${movie.genre}</td>
                     <td>${movie.director}</td>
                     <td>${movie.year}</td>
-                    <td>${movie.class.simpleName}</td>
+                    <td>${movie.movieType}</td>
                     <td>${movie.rentalPrice}</td>
                     <td>${movie.available}</td>
                     <td>

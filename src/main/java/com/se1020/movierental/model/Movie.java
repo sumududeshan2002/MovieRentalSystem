@@ -68,6 +68,10 @@ public abstract class Movie {
 
     public abstract double getRentalPrice();
 
+    public String getMovieType() {
+        return this.getClass().getSimpleName();
+    }
+
     @Override
     public String toString() {
         return movieId + "," + title + "," + genre + "," + director + "," + year + "," + available;

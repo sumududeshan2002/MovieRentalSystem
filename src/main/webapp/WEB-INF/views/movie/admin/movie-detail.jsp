@@ -41,7 +41,7 @@
                     <div class="col-md-6"><strong>Genre:</strong> ${movie.genre}</div>
                     <div class="col-md-6"><strong>Director:</strong> ${movie.director}</div>
                     <div class="col-md-6"><strong>Year:</strong> ${movie.year}</div>
-                    <div class="col-md-6"><strong>Type:</strong> ${movie.class.simpleName}</div>
+                    <div class="col-md-6"><strong>Type:</strong> ${movie.movieType}</div>
                     <div class="col-md-6"><strong>Rental Price:</strong> ${movie.rentalPrice}</div>
                     <div class="col-md-6"><strong>Availability:</strong> ${movie.available}</div>
                 </div>

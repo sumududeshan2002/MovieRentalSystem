@@ -39,8 +39,8 @@
                     <div class="mb-3">
                         <label for="type" class="form-label">Movie Type</label>
                         <select id="type" name="type" class="form-select" onchange="toggleRentalPrice()" required>
-                            <option value="NEW" ${movie.class.simpleName == 'NewRelease' ? 'selected' : ''}>NEW</option>
-                            <option value="CLASSIC" ${movie.class.simpleName == 'ClassicMovie' ? 'selected' : ''}>CLASSIC</option>
+                            <option value="NEW" ${movie.movieType == 'NewRelease' ? 'selected' : ''}>NEW</option>
+                            <option value="CLASSIC" ${movie.movieType == 'ClassicMovie' ? 'selected' : ''}>CLASSIC</option>
                         </select>
                     </div>
                     <div class="mb-3">
