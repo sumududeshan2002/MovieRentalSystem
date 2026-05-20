@@ -31,6 +31,10 @@ public class ReviewController {
 
     @GetMapping("/movie/{movieId}")
     public String movieReviews(@PathVariable String movieId, Model model) {
+        movieId = safeTrim(movieId);
+        if (movieId.isEmpty()) {
+            return "redirect:/movies/browse";
+        }
         model.addAttribute("reviews", reviewService.getApprovedReviewsByMovieId(movieId));
         model.addAttribute("movieId", movieId);
         return "review/movie-reviews";
@@ -41,6 +45,10 @@ public class ReviewController {
         User user = getLoggedInUser(session);
         if (user == null) {
             return "redirect:/users/login";
+        }
+        movieId = safeTrim(movieId);
+        if (movieId.isEmpty()) {
+            return "redirect:/movies/browse";
         }
         Movie movie = movieService.getMovieById(movieId);
         model.addAttribute("movieId", movieId);
@@ -57,8 +65,16 @@ public class ReviewController {
         if (user == null) {
             return "redirect:/users/login";
         }
+        movieId = safeTrim(movieId);
+        comment = safeTrim(comment);
+        if (movieId.isEmpty() || rating < 1 || rating > 5 || comment.isEmpty()) {
+            return "redirect:/reviews/my-reviews";
+        }
+        if (comment.length() > 500) {
+            comment = comment.substring(0, 500);
+        }
         if (reviewService.userAlreadyReviewed(user.getUserId(), movieId)) {
-            return "redirect:/reviews/movie/" + movieId + "?error=already-reviewed";
+            return "redirect:/reviews/my-reviews";
         }
 
         Movie movie = movieService.getMovieById(movieId);
@@ -74,7 +90,7 @@ public class ReviewController {
             "PENDING"
         );
         reviewService.addReview(review);
-        return "redirect:/reviews/movie/" + movieId;
+        return "redirect:/reviews/my-reviews";
     }
 
     @GetMapping("/my-reviews")
@@ -93,6 +109,10 @@ public class ReviewController {
         if (user == null) {
             return "redirect:/users/login";
         }
+        reviewId = safeTrim(reviewId);
+        if (reviewId.isEmpty()) {
+            return "redirect:/reviews/my-reviews";
+        }
         Review review = reviewService.getReviewById(reviewId);
         if (review == null || !review.getUserId().equals(user.getUserId()) || !"PENDING".equals(review.getStatus())) {
             return "redirect:/reviews/my-reviews";
@@ -109,6 +129,14 @@ public class ReviewController {
         User user = getLoggedInUser(session);
         if (user == null) {
             return "redirect:/users/login";
+        }
+        reviewId = safeTrim(reviewId);
+        comment = safeTrim(comment);
+        if (reviewId.isEmpty() || rating < 1 || rating > 5 || comment.isEmpty()) {
+            return "redirect:/reviews/my-reviews";
+        }
+        if (comment.length() > 500) {
+            comment = comment.substring(0, 500);
         }
         Review review = reviewService.getReviewById(reviewId);
         if (review == null || !review.getUserId().equals(user.getUserId()) || !"PENDING".equals(review.getStatus())) {
@@ -135,6 +163,10 @@ public class ReviewController {
         if (user == null) {
             return "redirect:/users/login";
         }
+        reviewId = safeTrim(reviewId);
+        if (reviewId.isEmpty()) {
+            return "redirect:/reviews/my-reviews";
+        }
         Review review = reviewService.getReviewById(reviewId);
         if (review != null && review.getUserId().equals(user.getUserId())) {
             reviewService.deleteReview(reviewId);
@@ -156,6 +188,9 @@ public class ReviewController {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
         }
+        if (safeTrim(reviewId).isEmpty()) {
+            return "redirect:/reviews/admin/list";
+        }
         reviewService.approveReview(reviewId);
         return "redirect:/reviews/admin/list";
     }
@@ -164,6 +199,9 @@ public class ReviewController {
     public String adminDeleteReview(@PathVariable String reviewId, HttpSession session) {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
+        }
+        if (safeTrim(reviewId).isEmpty()) {
+            return "redirect:/reviews/admin/list";
         }
         reviewService.deleteReview(reviewId);
         return "redirect:/reviews/admin/list";
@@ -176,5 +214,9 @@ public class ReviewController {
     private boolean isAdmin(HttpSession session) {
         User user = getLoggedInUser(session);
         return user != null && "ADMIN".equals(user.getRole());
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
     }
 }

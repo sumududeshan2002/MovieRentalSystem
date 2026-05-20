@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Year;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,6 +50,12 @@ public class MovieController {
 
     @GetMapping("/search")
     public String searchMovies(@RequestParam String keyword, Model model) {
+        keyword = safeTrim(keyword);
+        if (keyword.isEmpty()) {
+            model.addAttribute("movies", movieService.getAvailableMovies());
+            model.addAttribute("keyword", "");
+            return "movie/search-results";
+        }
         model.addAttribute("movies", movieService.searchMovies(keyword));
         model.addAttribute("keyword", keyword);
         return "movie/search-results";
@@ -102,6 +109,15 @@ public class MovieController {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
         }
+        type = safeTrim(type);
+        title = sanitizeCsvField(title);
+        genre = sanitizeCsvField(genre);
+        director = sanitizeCsvField(director);
+        if (!isValidMovieType(type) || !isValidText(title) || !isValidText(genre) || !isValidText(director)
+            || !isValidYear(year) || (rentalPrice != null && rentalPrice < 0)) {
+            return "redirect:/movies/admin/add?error=validation";
+        }
+
         String movieId = movieService.generateMovieId();
         Movie movie;
 
@@ -121,7 +137,11 @@ public class MovieController {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
         }
-        model.addAttribute("movie", movieService.getMovieById(movieId));
+        Movie movie = movieService.getMovieById(movieId);
+        if (movie == null) {
+            return "redirect:/movies/admin/list";
+        }
+        model.addAttribute("movie", movie);
         return "movie/admin/edit-movie";
     }
 
@@ -137,6 +157,14 @@ public class MovieController {
                             HttpSession session) {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
+        }
+        type = safeTrim(type);
+        title = sanitizeCsvField(title);
+        genre = sanitizeCsvField(genre);
+        director = sanitizeCsvField(director);
+        if (!isValidMovieType(type) || !isValidText(title) || !isValidText(genre) || !isValidText(director)
+            || !isValidYear(year) || (rentalPrice != null && rentalPrice < 0)) {
+            return "redirect:/movies/admin/edit/" + movieId + "?error=validation";
         }
         Movie movie;
 
@@ -156,6 +184,9 @@ public class MovieController {
         if (!isAdmin(session)) {
             return "redirect:/users/login";
         }
+        if (safeTrim(movieId).isEmpty()) {
+            return "redirect:/movies/admin/list";
+        }
         movieService.deleteMovie(movieId);
         return "redirect:/movies/admin/list";
     }
@@ -168,6 +199,10 @@ public class MovieController {
 
     @GetMapping("/tmdb/search")
     public String searchTmdbMovies(@RequestParam String query, Model model) {
+        query = safeTrim(query);
+        if (query.isEmpty()) {
+            return "redirect:/movies/tmdb/popular";
+        }
         model.addAttribute("tmdbMovies", tmdbService.searchMovies(query));
         model.addAttribute("query", query);
         return "movie/tmdb-search-results";
@@ -202,6 +237,9 @@ public class MovieController {
             return "redirect:/users/login";
         }
         Map<String, String> tmdbData = tmdbService.getMovieDetails(tmdbId);
+        if (tmdbData == null || tmdbData.isEmpty() || safeTrim(tmdbData.get("id")).isEmpty()) {
+            return "redirect:/movies/tmdb/popular";
+        }
 
         String movieId = "T" + tmdbData.get("id");
         String title = tmdbData.get("title");
@@ -209,13 +247,9 @@ public class MovieController {
         String director = "TMDB";
 
         // Keep CSV column positions stable for MovieService parsing.
-        if (title != null) {
-            title = title.replace(",", " ");
-        }
-        if (genre != null) {
-            genre = genre.replace(",", " /");
-        }
-        director = director.replace(",", " ");
+        title = sanitizeCsvField(title);
+        genre = sanitizeCsvField(genre).replace("/", " /");
+        director = sanitizeCsvField(director);
         int year = 0;
         try {
             String releaseDate = tmdbData.get("release_date");
@@ -231,6 +265,9 @@ public class MovieController {
                 price = Double.parseDouble(rentalPrice);
             } catch (NumberFormatException ignored) {
             }
+        }
+        if (!isValidMovieType(type) || !isValidText(title) || price < 0) {
+            return "redirect:/movies/tmdb/detail/" + tmdbId + "?error=validation";
         }
 
         Movie movie;
@@ -257,5 +294,26 @@ public class MovieController {
     private boolean isAdmin(HttpSession session) {
         User user = (User) session.getAttribute("loggedInUser");
         return user != null && "ADMIN".equals(user.getRole());
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String sanitizeCsvField(String value) {
+        return safeTrim(value).replace(",", " ");
+    }
+
+    private boolean isValidMovieType(String type) {
+        return "NEW".equalsIgnoreCase(type) || "CLASSIC".equalsIgnoreCase(type);
+    }
+
+    private boolean isValidText(String value) {
+        return !safeTrim(value).isEmpty() && safeTrim(value).length() <= 120;
+    }
+
+    private boolean isValidYear(int year) {
+        int currentYear = Year.now().getValue();
+        return year >= 1888 && year <= currentYear + 1;
     }
 }

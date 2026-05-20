@@ -1,2 +1,2 @@
-U000,admin,admin123,admin@gmail.com,0700000000,ADMIN,1
+U000,admin,admin123,admin@gmail.com,836493698252,ADMIN,1
 U001,admin@gmail.com,admin123,admin@gmail.com,0766734663,USER,BASIC

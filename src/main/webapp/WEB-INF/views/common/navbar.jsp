@@ -20,7 +20,7 @@
                     <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'USER'}">
                         <li class="nav-item">
                             <a class="nav-link" href="${pageContext.request.contextPath}/users/profile">
-                                Profile (${sessionScope.loggedInUser.username})
+                                Profile
                             </a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/users/logout">Logout</a></li>

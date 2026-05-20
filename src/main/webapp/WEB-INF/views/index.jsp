@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,7 +11,7 @@
         rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous">
-</head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app-ui.css"></head>
 <body class="bg-light">
     <%@ include file="/WEB-INF/views/common/navbar.jsp" %>
 
@@ -30,19 +30,19 @@
         <section class="row mt-5 g-4 text-center">
             <div class="col-md-4">
                 <div class="card h-100 p-4 border-0 shadow-sm">
-                    <h5 class="fw-bold">🎬 Browse Movies</h5>
+                    <h5 class="fw-bold">?? Browse Movies</h5>
                     <p class="text-muted">Explore thousands of movies powered by TMDB.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 p-4 border-0 shadow-sm">
-                    <h5 class="fw-bold">ðŸ“¦ Rent & Return</h5>
+                    <h5 class="fw-bold">📦 Rent & Return</h5>
                     <p class="text-muted">Rent movies and manage your rental history easily.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 p-4 border-0 shadow-sm">
-                    <h5 class="fw-bold">⭐ Reviews</h5>
+                    <h5 class="fw-bold">?� Reviews</h5>
                     <p class="text-muted">Share your thoughts and read reviews from others.</p>
                 </div>
             </div>

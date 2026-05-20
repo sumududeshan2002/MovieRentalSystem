@@ -55,6 +55,9 @@ public class RentalController {
             return "redirect:/users/login";
         }
 
+        if (safeTrim(rentalId).isEmpty()) {
+            return "redirect:/rentals/my-rentals";
+        }
         Rental rental = rentalService.getRentalById(rentalId);
         if (rental == null || !rental.getUserId().equals(user.getUserId())) {
             return "redirect:/rentals/my-rentals";
@@ -76,6 +79,15 @@ public class RentalController {
         if (user == null) {
             return "redirect:/users/login";
         }
+        movieId = safeTrim(movieId);
+        movieTitle = safeTrim(movieTitle);
+        comment = safeTrim(comment);
+        if (movieId.isEmpty()) {
+            return "redirect:/movies/browse";
+        }
+        if (dailyRate != null && dailyRate < 0) {
+            dailyRate = DEFAULT_DAILY_RATE;
+        }
 
         Movie movie = movieService.getMovieById(movieId);
         if (rentalService.isMovieRentedByUser(user.getUserId(), movieId)) {
@@ -87,7 +99,7 @@ public class RentalController {
 
         String title = movie != null ? movie.getTitle() : movieTitle;
         if (title == null || title.trim().isEmpty()) {
-            return "redirect:/movies/detail/" + movieId;
+            return "redirect:/movies/tmdb/detail/" + movieId;
         }
 
         int validRentalDays = Math.max(MIN_RENTAL_DAYS, Math.min(MAX_RENTAL_DAYS, rentalDays));
@@ -107,6 +119,9 @@ public class RentalController {
             return "redirect:/users/login";
         }
 
+        if (safeTrim(rentalId).isEmpty()) {
+            return "redirect:/rentals/my-rentals";
+        }
         Rental rental = rentalService.getRentalById(rentalId);
         if (rental == null || !rental.getUserId().equals(user.getUserId())) {
             return "redirect:/rentals/my-rentals";
@@ -134,6 +149,9 @@ public class RentalController {
     private void saveFeedbackIfProvided(User user, String movieId, String movieTitle, Integer rating, String comment) {
         if (rating == null || rating < 1 || rating > 5 || comment == null || comment.trim().isEmpty()) {
             return;
+        }
+        if (comment.length() > 500) {
+            comment = comment.substring(0, 500);
         }
 
         Review existingReview = null;
@@ -172,5 +190,9 @@ public class RentalController {
             );
             reviewService.updateReview(updated);
         }
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
     }
 }

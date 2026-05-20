@@ -11,7 +11,7 @@
             rel="stylesheet"
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
             crossorigin="anonymous">
-</head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app-ui.css"></head>
 <body class="bg-light">
 <%@ include file="/WEB-INF/views/common/admin-navbar.jsp" %>
 
@@ -51,6 +51,8 @@
                             <td>
                                 <a class="btn btn-sm btn-outline-primary"
                                    href="${pageContext.request.contextPath}/users/admin/detail/${user.userId}">View</a>
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="${pageContext.request.contextPath}/users/admin/edit/${user.userId}">Edit</a>
                                 <a class="btn btn-sm btn-danger" href="${pageContext.request.contextPath}/users/admin/delete/${user.userId}" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
                             </td>
                         </tr>

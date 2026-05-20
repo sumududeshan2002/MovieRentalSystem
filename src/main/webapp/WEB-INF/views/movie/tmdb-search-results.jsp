@@ -11,7 +11,7 @@
             rel="stylesheet"
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
             crossorigin="anonymous">
-</head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app-ui.css"></head>
 <body class="bg-light">
 <%@ include file="/WEB-INF/views/common/navbar.jsp" %>
 

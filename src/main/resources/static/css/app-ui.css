@@ -1,0 +1,288 @@
+:root {
+    --app-bg: #0b1220;
+    --app-surface: #111a2e;
+    --app-border: #25314b;
+    --app-text: #e5ecff;
+    --app-muted: #9eabc5;
+    --app-primary: #3b82f6;
+    --app-primary-hover: #2563eb;
+    --app-success: #22c55e;
+    --app-warning-bg: #3f3206;
+    --app-warning-text: #f6d365;
+    --app-radius: 12px;
+    --app-shadow: 0 14px 32px rgba(1, 6, 17, 0.5);
+}
+
+body.bg-light {
+    background: radial-gradient(circle at top right, #14233f 0%, #0d1628 25%, var(--app-bg) 100%) !important;
+    color: var(--app-text);
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.container {
+    max-width: 1180px;
+}
+
+.navbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(2, 8, 23, 0.45);
+}
+
+.navbar .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.navbar .nav-link {
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.88) !important;
+    font-weight: 500;
+    padding: 0.45rem 0.7rem !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.13);
+    color: #fff !important;
+}
+
+main.container.py-4 {
+    padding-top: 1.75rem !important;
+    padding-bottom: 2.4rem !important;
+}
+
+h1.h3 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem !important;
+}
+
+.card,
+.bg-white.border.rounded {
+    background: var(--app-surface) !important;
+    border: 1px solid var(--app-border) !important;
+    border-radius: var(--app-radius) !important;
+    box-shadow: var(--app-shadow) !important;
+    color: var(--app-text);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card h5,
+.card h6,
+.card .form-label,
+.card p,
+.card .card-title {
+    color: var(--app-text);
+}
+
+.card a:not(.btn) {
+    color: #60a5fa;
+}
+
+.btn,
+.btn:visited {
+    color: #fff;
+}
+
+.btn-warning,
+.btn-warning:visited {
+    color: #1f2937;
+}
+
+.table {
+    margin-bottom: 0;
+    --bs-table-color: var(--app-text);
+    --bs-table-bg: #16223d;
+    --bs-table-border-color: #24304a;
+    --bs-table-striped-bg: #1b2948;
+    --bs-table-striped-color: var(--app-text);
+    --bs-table-active-bg: #21345a;
+    --bs-table-active-color: var(--app-text);
+    --bs-table-hover-bg: #243a63;
+    --bs-table-hover-color: var(--app-text);
+}
+
+.table > :not(caption) > * > * {
+    border-bottom-color: #24304a;
+    padding: 0.82rem 0.95rem;
+    vertical-align: middle;
+    color: var(--app-text);
+    background-color: transparent;
+}
+
+.table-dark,
+.table thead.table-dark th {
+    background: #0e1628 !important;
+    border-color: #1b2740 !important;
+}
+
+.table > tbody > tr > td {
+    color: var(--app-text);
+}
+
+.table-responsive {
+    border-radius: 10px;
+}
+
+.table-responsive .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.badge {
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0;
+    padding: 0.4em 0.6em;
+}
+
+.badge.bg-success {
+    background: #15803d !important;
+}
+
+.badge.bg-warning,
+.badge.text-dark.bg-warning {
+    background: var(--app-warning-bg) !important;
+    color: var(--app-warning-text) !important;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+}
+
+.btn-primary {
+    background-color: var(--app-primary);
+    border-color: var(--app-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--app-primary-hover);
+    border-color: var(--app-primary-hover);
+}
+
+.btn-outline-primary {
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.btn-outline-secondary {
+    border-color: #415170;
+    color: #d1dbef;
+}
+
+.btn-outline-danger {
+    border-color: #ef4444;
+    color: #b91c1c;
+}
+
+.btn-outline-success {
+    border-color: #22c55e;
+    color: #86efac;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border-color: #334564;
+    background-color: #0e1628;
+    color: var(--app-text);
+}
+
+.form-select option {
+    background-color: #0e1628;
+    color: var(--app-text);
+}
+
+.form-control::placeholder {
+    color: #7f8ca8;
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background-color: #1a2640;
+    color: #8f9db8;
+}
+
+.form-control:focus,
+.form-select:focus,
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+    border-color: #7da5ff;
+}
+
+.alert {
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+
+.alert-info {
+    background: #10233f;
+    border-color: #29456c;
+    color: #c4ddff;
+}
+
+.alert-warning {
+    background: #382c08;
+    border-color: #6b5520;
+    color: #ffdf8a;
+}
+
+.modal-content {
+    border-radius: 14px;
+    border: 1px solid var(--app-border);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: #25314b;
+}
+
+.modal-body,
+.modal-header,
+.modal-footer {
+    background-color: #111a2e;
+    color: var(--app-text);
+}
+
+.text-muted,
+.small,
+small {
+    color: var(--app-muted) !important;
+}
+
+.d-flex.gap-2 {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 992px) {
+    .container {
+        max-width: 96%;
+    }
+
+    h1.h3 {
+        font-size: 1.35rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn,
+    .btn-sm {
+        width: 100%;
+    }
+
+    .d-flex.gap-2 {
+        width: 100%;
+    }
+}
