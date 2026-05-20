@@ -48,14 +48,24 @@
                     <div class="mt-4 d-flex gap-2">
                         <c:if test="${sessionScope.loggedInUser != null && !alreadyRented}">
                             <form method="post" action="${pageContext.request.contextPath}/rentals/rent/${movie.movieId}" class="m-0">
-                                <button type="submit" class="btn btn-primary">Rent This Movie</button>
+                                <input type="hidden" name="dailyRate" value="${movie.rentalPrice}">
+                                <div class="d-flex gap-2 align-items-end">
+                                    <div>
+                                        <label for="rentalDays" class="form-label mb-1">Days</label>
+                                        <input id="rentalDays" name="rentalDays" type="number" min="1" max="30" value="7"
+                                               class="form-control" style="width: 110px;" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Rent This Movie</button>
+                                </div>
                             </form>
                         </c:if>
-                        <a class="btn btn-outline-primary" 
-                           href="${pageContext.request.contextPath}/reviews/movie/${movie.movieId}">
-                            See Reviews
-                        </a>
-                        <a class="btn btn-outline-secondary" 
+                        <c:if test="${sessionScope.loggedInUser != null}">
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                    data-bs-target="#reviewModal">
+                                Write Review
+                            </button>
+                        </c:if>
+                        <a class="btn btn-outline-secondary"
                            href="${pageContext.request.contextPath}/movies/browse">Back to Browse</a>
                     </div>
                 </div>
@@ -63,6 +73,41 @@
         </div>
     </div>
 </main>
+
+<c:if test="${sessionScope.loggedInUser != null}">
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="reviewModalLabel">Write a Review</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="${pageContext.request.contextPath}/reviews/add/${movie.movieId}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="modalRating" class="form-label">Rating</label>
+                            <select id="modalRating" name="rating" class="form-select" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalComment" class="form-label">Comment</label>
+                            <textarea id="modalComment" name="comment" class="form-control" rows="4" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</c:if>
 
 <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -30,6 +30,8 @@
                         <th>Days</th>
                         <th>Daily Rate</th>
                         <th>Total Price</th>
+                        <th>Feedback</th>
+                        <th>Review Status</th>
                         <th>Return Date</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -46,6 +48,35 @@
                                     <td>${rental.rentalDays}</td>
                                     <td>$${rental.dailyRate}</td>
                                     <td>$${rental.totalPrice}</td>
+                                    <td>
+                                        <c:set var="matchedReview" value="${null}" />
+                                        <c:forEach var="review" items="${reviews}">
+                                            <c:if test="${review.movieId == rental.movieId}">
+                                                <c:set var="matchedReview" value="${review}" />
+                                            </c:if>
+                                        </c:forEach>
+                                        <c:choose>
+                                            <c:when test="${matchedReview != null}">
+                                                ${matchedReview.rating}/5 - ${matchedReview.comment}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">No feedback</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${matchedReview != null && matchedReview.status == 'APPROVED'}">
+                                                <span class="badge bg-success">APPROVED</span>
+                                            </c:when>
+                                            <c:when test="${matchedReview != null && matchedReview.status == 'PENDING'}">
+                                                <span class="badge text-dark bg-warning">PENDING</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">N/A</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>${rental.returnDate}</td>
                                     <td>
                                         <c:choose>
@@ -62,6 +93,26 @@
                                            href="${pageContext.request.contextPath}/rentals/detail/${rental.rentalId}">
                                             Details
                                         </a>
+                                        <c:choose>
+                                            <c:when test="${matchedReview != null && matchedReview.status == 'PENDING'}">
+                                                <a class="btn btn-sm btn-outline-secondary"
+                                                   href="${pageContext.request.contextPath}/reviews/edit/${matchedReview.reviewId}">
+                                                    Edit Feedback
+                                                </a>
+                                            </c:when>
+                                            <c:when test="${matchedReview == null}">
+                                                <a class="btn btn-sm btn-outline-secondary"
+                                                   href="${pageContext.request.contextPath}/reviews/add/${rental.movieId}">
+                                                    Add Feedback
+                                                </a>
+                                            </c:when>
+                                        </c:choose>
+                                        <c:if test="${matchedReview != null}">
+                                            <a class="btn btn-sm btn-outline-danger"
+                                               href="${pageContext.request.contextPath}/reviews/delete/${matchedReview.reviewId}">
+                                                Delete Feedback
+                                            </a>
+                                        </c:if>
                                         <c:if test="${rental.status == 'ACTIVE'}">
                                             <form method="post"
                                                   action="${pageContext.request.contextPath}/rentals/return/${rental.rentalId}"
@@ -75,7 +126,7 @@
                         </c:when>
                         <c:otherwise>
                             <tr>
-                                <td colspan="9" class="text-center py-4">No rentals found.</td>
+                                <td colspan="11" class="text-center py-4">No rentals found.</td>
                             </tr>
                         </c:otherwise>
                     </c:choose>

@@ -83,6 +83,10 @@
                                     </div>
                                 </form>
                             </c:if>
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                    data-bs-target="#tmdbReviewModal">
+                                Write Review
+                            </button>
                             <a href="${pageContext.request.contextPath}/movies/tmdb/popular"
                                class="btn btn-outline-secondary">Back to Browse</a>
                         </div>
@@ -101,6 +105,42 @@
         </div>
     </div>
 </main>
+
+<c:if test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'USER'}">
+    <div class="modal fade" id="tmdbReviewModal" tabindex="-1" aria-labelledby="tmdbReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tmdbReviewModalLabel">Write a Review</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="${pageContext.request.contextPath}/reviews/add/${tmdbMovie.id}">
+                    <div class="modal-body">
+                        <input type="hidden" name="movieTitle" value="${tmdbMovie.title}">
+                        <div class="mb-3">
+                            <label for="tmdbModalRating" class="form-label">Rating</label>
+                            <select id="tmdbModalRating" name="rating" class="form-select" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tmdbModalComment" class="form-label">Comment</label>
+                            <textarea id="tmdbModalComment" name="comment" class="form-control" rows="4" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</c:if>
 
 <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

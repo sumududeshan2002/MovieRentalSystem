@@ -2,9 +2,11 @@ package com.se1020.movierental.controller;
 
 import com.se1020.movierental.model.Movie;
 import com.se1020.movierental.model.Rental;
+import com.se1020.movierental.model.Review;
 import com.se1020.movierental.model.User;
 import com.se1020.movierental.service.MovieService;
 import com.se1020.movierental.service.RentalService;
+import com.se1020.movierental.service.ReviewService;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -25,11 +27,13 @@ public class RentalController {
 
     private final RentalService rentalService;
     private final MovieService movieService;
+    private final ReviewService reviewService;
 
     public RentalController(ServletContext servletContext) {
         String basePath = servletContext.getRealPath("/WEB-INF/") + "../../resources/data/";
         this.rentalService = new RentalService(basePath + "rentals.txt");
         this.movieService = new MovieService(basePath + "movies.txt");
+        this.reviewService = new ReviewService(basePath + "reviews.txt");
     }
 
     @GetMapping("/my-rentals")
@@ -40,6 +44,7 @@ public class RentalController {
         }
 
         model.addAttribute("rentals", rentalService.getRentalsByUserId(user.getUserId()));
+        model.addAttribute("reviews", reviewService.getReviewsByUserId(user.getUserId()));
         return "rental/my-rentals";
     }
 
@@ -64,6 +69,8 @@ public class RentalController {
                             @RequestParam(required = false) String movieTitle,
                             @RequestParam(defaultValue = "7") int rentalDays,
                             @RequestParam(required = false) Double dailyRate,
+                            @RequestParam(required = false) Integer rating,
+                            @RequestParam(required = false) String comment,
                             HttpSession session) {
         User user = getLoggedInUser(session);
         if (user == null) {
@@ -89,6 +96,7 @@ public class RentalController {
             : (dailyRate != null && dailyRate > 0 ? dailyRate : DEFAULT_DAILY_RATE);
 
         rentalService.rentMovie(user.getUserId(), movieId, title, validRentalDays, resolvedDailyRate);
+        saveFeedbackIfProvided(user, movieId, title, rating, comment);
         return "redirect:/rentals/my-rentals";
     }
 
@@ -121,5 +129,48 @@ public class RentalController {
 
     private User getLoggedInUser(HttpSession session) {
         return (User) session.getAttribute("loggedInUser");
+    }
+
+    private void saveFeedbackIfProvided(User user, String movieId, String movieTitle, Integer rating, String comment) {
+        if (rating == null || rating < 1 || rating > 5 || comment == null || comment.trim().isEmpty()) {
+            return;
+        }
+
+        Review existingReview = null;
+        for (Review review : reviewService.getReviewsByUserId(user.getUserId())) {
+            if (movieId.equals(review.getMovieId())) {
+                existingReview = review;
+                break;
+            }
+        }
+
+        if (existingReview == null) {
+            Review review = new Review(
+                reviewService.generateReviewId(),
+                user.getUserId(),
+                user.getUsername(),
+                movieId,
+                movieTitle,
+                rating,
+                comment,
+                "PENDING"
+            );
+            reviewService.addReview(review);
+            return;
+        }
+
+        if ("PENDING".equals(existingReview.getStatus())) {
+            Review updated = new Review(
+                existingReview.getReviewId(),
+                existingReview.getUserId(),
+                existingReview.getUsername(),
+                existingReview.getMovieId(),
+                existingReview.getMovieTitle(),
+                rating,
+                comment,
+                existingReview.getStatus()
+            );
+            reviewService.updateReview(updated);
+        }
     }
 }
