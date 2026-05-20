@@ -34,6 +34,9 @@
                 <p class="mb-2"><strong>Runtime:</strong> ${tmdbMovie.runtime} minutes</p>
                 <p class="mb-2"><strong>Genres:</strong> ${tmdbMovie.genres}</p>
                 <p class="mb-4"><strong>Overview:</strong> ${tmdbMovie.overview}</p>
+                <c:if test="${alreadyRented}">
+                    <div class="alert alert-info">You already have an active rental for this movie.</div>
+                </c:if>
 
                 <c:choose>
                     <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'ADMIN'}">
@@ -60,9 +63,26 @@
                     </c:when>
 
                     <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'USER'}">
-                        <div class="d-flex gap-2">
-                            <a href="${pageContext.request.contextPath}/rentals/rent/${tmdbMovie.id}"
-                               class="btn btn-primary">Rent This Movie</a>
+                        <div class="d-flex gap-2 align-items-end">
+                            <c:if test="${!alreadyRented}">
+                                <form method="post"
+                                      action="${pageContext.request.contextPath}/rentals/rent/${tmdbMovie.id}"
+                                      class="m-0">
+                                    <input type="hidden" name="dailyRate" value="2.99">
+                                    <input type="hidden" name="movieTitle" value="${tmdbMovie.title}">
+                                    <div class="d-flex gap-2 align-items-end">
+                                        <div>
+                                            <label for="rentalDaysTmdb" class="form-label mb-1">Days</label>
+                                            <input id="rentalDaysTmdb" name="rentalDays" type="number" min="1" max="30" value="7"
+                                                   class="form-control" style="width: 110px;" required>
+                                        </div>
+                                        <div class="text-muted small mb-2">
+                                            Daily: $2.99
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Rent This Movie</button>
+                                    </div>
+                                </form>
+                            </c:if>
                             <a href="${pageContext.request.contextPath}/movies/tmdb/popular"
                                class="btn btn-outline-secondary">Back to Browse</a>
                         </div>

@@ -57,6 +57,10 @@ public class MovieController {
     @GetMapping("/detail/{movieId}")
     public String movieDetail(@PathVariable String movieId, HttpSession session, Model model) {
         Movie movie = movieService.getMovieById(movieId);
+        if (movie == null) {
+            return "redirect:/movies/tmdb/detail/" + movieId;
+        }
+
         User user = (User) session.getAttribute("loggedInUser");
         boolean alreadyRented = false;
 
@@ -170,12 +174,22 @@ public class MovieController {
     }
 
     @GetMapping("/tmdb/detail/{tmdbId}")
-    public String tmdbMovieDetail(@PathVariable String tmdbId, Model model) {
+    public String tmdbMovieDetail(@PathVariable String tmdbId,
+                                  @RequestParam(required = false, defaultValue = "false") boolean alreadyRented,
+                                  HttpSession session,
+                                  Model model) {
         Map<String, String> tmdbMovie = tmdbService.getMovieDetails(tmdbId);
+        User user = (User) session.getAttribute("loggedInUser");
+        boolean hasActiveRental = false;
+        if (user != null) {
+            hasActiveRental = rentalService.isMovieRentedByUser(user.getUserId(), tmdbId);
+        }
+
         if (tmdbMovie.isEmpty() || tmdbMovie.get("title") == null || tmdbMovie.get("title").trim().isEmpty()) {
             model.addAttribute("error", "Movie details could not be loaded. Please try another movie.");
         }
         model.addAttribute("tmdbMovie", tmdbMovie);
+        model.addAttribute("alreadyRented", alreadyRented || hasActiveRental);
         return "movie/tmdb-detail";
     }
 

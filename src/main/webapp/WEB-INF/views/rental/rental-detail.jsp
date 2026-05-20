@@ -28,6 +28,9 @@
                         <div class="col-md-6"><strong>Movie Title:</strong> ${rental.movieTitle}</div>
                         <div class="col-md-6"><strong>Rental Date:</strong> ${rental.rentalDate}</div>
                         <div class="col-md-6"><strong>Due Date:</strong> ${rental.dueDate}</div>
+                        <div class="col-md-6"><strong>Rental Days:</strong> ${rental.rentalDays}</div>
+                        <div class="col-md-6"><strong>Daily Rate:</strong> $${rental.dailyRate}</div>
+                        <div class="col-md-6"><strong>Total Price:</strong> $${rental.totalPrice}</div>
                         <div class="col-md-6"><strong>Return Date:</strong> ${rental.returnDate}</div>
                         <div class="col-md-6"><strong>Status:</strong> ${rental.status}</div>
                     </div>

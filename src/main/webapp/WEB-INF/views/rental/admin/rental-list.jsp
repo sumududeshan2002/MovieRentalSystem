@@ -29,6 +29,9 @@
                         <th>Movie Title</th>
                         <th>Rental Date</th>
                         <th>Due Date</th>
+                        <th>Days</th>
+                        <th>Daily Rate</th>
+                        <th>Total Price</th>
                         <th>Return Date</th>
                         <th>Status</th>
                     </tr>
@@ -43,6 +46,9 @@
                                     <td>${rental.movieTitle}</td>
                                     <td>${rental.rentalDate}</td>
                                     <td>${rental.dueDate}</td>
+                                    <td>${rental.rentalDays}</td>
+                                    <td>$${rental.dailyRate}</td>
+                                    <td>$${rental.totalPrice}</td>
                                     <td>${rental.returnDate}</td>
                                     <td>
                                         <c:choose>
@@ -59,7 +65,7 @@
                         </c:when>
                         <c:otherwise>
                             <tr>
-                                <td colspan="7" class="text-center py-4">No rentals found.</td>
+                                <td colspan="10" class="text-center py-4">No rentals found.</td>
                             </tr>
                         </c:otherwise>
                     </c:choose>

@@ -12,11 +12,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/rentals")
 public class RentalController {
+
+    private static final int MIN_RENTAL_DAYS = 1;
+    private static final int MAX_RENTAL_DAYS = 30;
+    private static final double DEFAULT_DAILY_RATE = 2.99;
 
     private final RentalService rentalService;
     private final MovieService movieService;
@@ -55,18 +60,35 @@ public class RentalController {
     }
 
     @PostMapping("/rent/{movieId}")
-    public String rentMovie(@PathVariable String movieId, HttpSession session) {
+    public String rentMovie(@PathVariable String movieId,
+                            @RequestParam(required = false) String movieTitle,
+                            @RequestParam(defaultValue = "7") int rentalDays,
+                            @RequestParam(required = false) Double dailyRate,
+                            HttpSession session) {
         User user = getLoggedInUser(session);
         if (user == null) {
             return "redirect:/users/login";
         }
 
         Movie movie = movieService.getMovieById(movieId);
-        if (movie == null || rentalService.isMovieRentedByUser(user.getUserId(), movieId)) {
+        if (rentalService.isMovieRentedByUser(user.getUserId(), movieId)) {
+            if (movie != null) {
+                return "redirect:/movies/detail/" + movieId + "?alreadyRented=true";
+            }
+            return "redirect:/movies/tmdb/detail/" + movieId + "?alreadyRented=true";
+        }
+
+        String title = movie != null ? movie.getTitle() : movieTitle;
+        if (title == null || title.trim().isEmpty()) {
             return "redirect:/movies/detail/" + movieId;
         }
 
-        rentalService.rentMovie(user.getUserId(), movieId, movie.getTitle());
+        int validRentalDays = Math.max(MIN_RENTAL_DAYS, Math.min(MAX_RENTAL_DAYS, rentalDays));
+        double resolvedDailyRate = movie != null
+            ? movie.getRentalPrice()
+            : (dailyRate != null && dailyRate > 0 ? dailyRate : DEFAULT_DAILY_RATE);
+
+        rentalService.rentMovie(user.getUserId(), movieId, title, validRentalDays, resolvedDailyRate);
         return "redirect:/rentals/my-rentals";
     }
 
