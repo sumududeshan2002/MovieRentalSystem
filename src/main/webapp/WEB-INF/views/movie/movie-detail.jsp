@@ -45,24 +45,18 @@
                             </c:choose>
                         </div>
                     </div>
-                    <div class="mt-4 d-flex gap-2 align-items-end">
+                    <div class="mt-4 d-flex gap-2">
                         <c:if test="${sessionScope.loggedInUser != null && !alreadyRented}">
                             <form method="post" action="${pageContext.request.contextPath}/rentals/rent/${movie.movieId}" class="m-0">
-                                <input type="hidden" name="dailyRate" value="${movie.rentalPrice}">
-                                <div class="d-flex gap-2 align-items-end">
-                                    <div>
-                                        <label for="rentalDays" class="form-label mb-1">Days</label>
-                                        <input id="rentalDays" name="rentalDays" type="number" min="1" max="30" value="7"
-                                               class="form-control" style="width: 110px;" required>
-                                    </div>
-                                    <div class="text-muted small mb-2">
-                                        Daily: $${movie.rentalPrice}
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Rent This Movie</button>
-                                </div>
+                                <button type="submit" class="btn btn-primary">Rent This Movie</button>
                             </form>
                         </c:if>
-                        <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/movies/browse">Back to Browse</a>
+                        <a class="btn btn-outline-primary" 
+                           href="${pageContext.request.contextPath}/reviews/movie/${movie.movieId}">
+                            See Reviews
+                        </a>
+                        <a class="btn btn-outline-secondary" 
+                           href="${pageContext.request.contextPath}/movies/browse">Back to Browse</a>
                     </div>
                 </div>
             </div>

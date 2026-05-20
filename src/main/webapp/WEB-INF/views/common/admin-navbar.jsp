@@ -11,6 +11,7 @@
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/admin/list">Manage Movies</a></li>
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/users/admin/list">Manage Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/reviews/admin/list">Reviews</a></li>
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/users/logout">Logout</a></li>
             </ul>
         </div>
