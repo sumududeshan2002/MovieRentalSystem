@@ -46,7 +46,11 @@
                         </div>
                     </div>
                     <div class="mt-4 d-flex gap-2">
-                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/rentals/rent/${movie.movieId}">Rent This Movie</a>
+                        <c:if test="${sessionScope.loggedInUser != null && !alreadyRented}">
+                            <form method="post" action="${pageContext.request.contextPath}/rentals/rent/${movie.movieId}" class="m-0">
+                                <button type="submit" class="btn btn-primary">Rent This Movie</button>
+                            </form>
+                        </c:if>
                         <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/movies/browse">Back to Browse</a>
                     </div>
                 </div>

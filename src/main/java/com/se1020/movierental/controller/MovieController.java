@@ -5,6 +5,7 @@ import com.se1020.movierental.model.Movie;
 import com.se1020.movierental.model.NewRelease;
 import com.se1020.movierental.model.User;
 import com.se1020.movierental.service.MovieService;
+import com.se1020.movierental.service.RentalService;
 import com.se1020.movierental.service.TmdbService;
 import com.se1020.movierental.util.FileUtils;
 import jakarta.servlet.ServletContext;
@@ -28,12 +29,15 @@ import java.util.Properties;
 public class MovieController {
 
     private final MovieService movieService;
+    private final RentalService rentalService;
     private final TmdbService tmdbService;
     private final String movieFilePath;
 
     public MovieController(ServletContext application) {
         this.movieFilePath = application.getRealPath("/WEB-INF/") + "../../resources/data/movies.txt";
+        String rentalFilePath = application.getRealPath("/WEB-INF/") + "../../resources/data/rentals.txt";
         this.movieService = new MovieService(movieFilePath);
+        this.rentalService = new RentalService(rentalFilePath);
         this.tmdbService = new TmdbService(loadTmdbApiKey());
     }
 
@@ -51,8 +55,17 @@ public class MovieController {
     }
 
     @GetMapping("/detail/{movieId}")
-    public String movieDetail(@PathVariable String movieId, Model model) {
-        model.addAttribute("movie", movieService.getMovieById(movieId));
+    public String movieDetail(@PathVariable String movieId, HttpSession session, Model model) {
+        Movie movie = movieService.getMovieById(movieId);
+        User user = (User) session.getAttribute("loggedInUser");
+        boolean alreadyRented = false;
+
+        if (user != null) {
+            alreadyRented = rentalService.isMovieRentedByUser(user.getUserId(), movieId);
+        }
+
+        model.addAttribute("movie", movie);
+        model.addAttribute("alreadyRented", alreadyRented);
         return "movie/movie-detail";
     }
 

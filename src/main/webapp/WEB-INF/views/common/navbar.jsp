@@ -10,7 +10,7 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/tmdb/popular">Movies</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">My Rentals</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/rentals/my-rentals">My Rentals</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
                 <c:choose>
                     <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'ADMIN'}">
