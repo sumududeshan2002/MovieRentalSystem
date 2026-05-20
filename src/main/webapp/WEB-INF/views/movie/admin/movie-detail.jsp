@@ -13,22 +13,7 @@
             crossorigin="anonymous">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="${pageContext.request.contextPath}/movies/admin/list">MovieRental Admin</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-                aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/admin/list">Movie List</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/admin/add">Add Movie</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/">Home</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<%@ include file="/WEB-INF/views/common/admin-navbar.jsp" %>
 
 <main class="container py-4">
     <div class="row justify-content-center">

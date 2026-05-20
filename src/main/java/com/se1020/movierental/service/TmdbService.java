@@ -5,10 +5,13 @@ import com.se1020.movierental.model.Movie;
 import com.se1020.movierental.model.NewRelease;
 import com.se1020.movierental.util.FileUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.util.zip.GZIPInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -31,38 +34,77 @@ public class TmdbService {
     }
 
     public List<Map<String, String>> getPopularMovies() {
-        String response = sendGetRequest(BASE_URL + "/movie/popular?api_key=" + apiKey + "&language=en-US&page=1");
-        return parseMovieList(response);
+        ApiResponse apiResponse = sendGetRequest(BASE_URL + "/movie/popular?api_key=" + apiKey + "&language=en-US&page=1");
+        if (apiResponse.statusCode != 200) {
+            System.err.println("TMDB popular API request failed with status: " + apiResponse.statusCode);
+            return new ArrayList<>();
+        }
+        if (apiResponse.body == null || apiResponse.body.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return parseMovieList(apiResponse.body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public List<Map<String, String>> searchMovies(String query) {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String response = sendGetRequest(
+        ApiResponse apiResponse = sendGetRequest(
             BASE_URL + "/search/movie?api_key=" + apiKey + "&query=" + encodedQuery + "&language=en-US"
         );
-        return parseMovieList(response);
+        if (apiResponse.statusCode != 200) {
+            System.err.println("TMDB search API request failed with status: " + apiResponse.statusCode);
+            return new ArrayList<>();
+        }
+        if (apiResponse.body == null || apiResponse.body.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return parseMovieList(apiResponse.body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public Map<String, String> getMovieDetails(String tmdbId) {
-        String response = sendGetRequest(BASE_URL + "/movie/" + tmdbId + "?api_key=" + apiKey + "&language=en-US");
-        if (response.isEmpty()) {
+        ApiResponse apiResponse = sendGetRequest(BASE_URL + "/movie/" + tmdbId + "?api_key=" + apiKey + "&language=en-US");
+        if (apiResponse.statusCode != 200) {
+            System.err.println("TMDB details API request failed with status: " + apiResponse.statusCode);
+            return new HashMap<>();
+        }
+        if (apiResponse.body == null || apiResponse.body.trim().isEmpty()) {
             return new HashMap<>();
         }
 
-        JSONObject movieJson = new JSONObject(response);
-        Map<String, String> movie = parseMovieObject(movieJson);
-        movie.put("runtime", String.valueOf(movieJson.optInt("runtime", 0)));
+        try {
+            JSONObject movieJson = new JSONObject(apiResponse.body);
+            Map<String, String> movie = parseMovieObject(movieJson);
+            movie.put("runtime", String.valueOf(movieJson.optInt("runtime", 0)));
 
-        JSONArray genresArray = movieJson.optJSONArray("genres");
-        List<String> genres = new ArrayList<>();
-        if (genresArray != null) {
-            for (int i = 0; i < genresArray.length(); i++) {
-                genres.add(genresArray.getJSONObject(i).optString("name", ""));
+            JSONArray genresArray = movieJson.optJSONArray("genres");
+            List<String> genres = new ArrayList<>();
+            if (genresArray != null) {
+                for (int i = 0; i < genresArray.length(); i++) {
+                    genres.add(genresArray.getJSONObject(i).optString("name", ""));
+                }
             }
-        }
-        movie.put("genres", String.join(", ", genres));
+            movie.put("genres", String.join(", ", genres));
+            String title = movie.get("title");
+            if (title == null || title.trim().isEmpty()) {
+                movie.put("error", "Movie details not available");
+            }
 
-        return movie;
+            return movie;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new HashMap<>();
+        }
     }
 
     public Movie importMovieToFile(Map<String, String> tmdbMovie, String filePath, String type) {
@@ -88,20 +130,21 @@ public class TmdbService {
 
     private List<Map<String, String>> parseMovieList(String response) {
         List<Map<String, String>> movies = new ArrayList<>();
-        if (response.isEmpty()) {
+        if (response == null || response.trim().isEmpty()) {
             return movies;
         }
-
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray results = jsonObject.optJSONArray("results");
-        if (results == null) {
-            return movies;
+        try {
+            JSONObject jsonObject = new JSONObject(response.trim());
+            JSONArray results = jsonObject.optJSONArray("results");
+            if (results == null) {
+                return movies;
+            }
+            for (int i = 0; i < results.length(); i++) {
+                movies.add(parseMovieObject(results.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
-        for (int i = 0; i < results.length(); i++) {
-            movies.add(parseMovieObject(results.getJSONObject(i)));
-        }
-
         return movies;
     }
 
@@ -123,7 +166,7 @@ public class TmdbService {
         return movie;
     }
 
-    private String sendGetRequest(String urlString) {
+    private ApiResponse sendGetRequest(String urlString) {
         HttpURLConnection connection = null;
 
         try {
@@ -131,10 +174,24 @@ public class TmdbService {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
+            int statusCode = connection.getResponseCode();
 
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)
-            );
+            InputStream inputStream;
+            if (statusCode >= 200 && statusCode < 300) {
+                inputStream = connection.getInputStream();
+            } else {
+                inputStream = connection.getErrorStream();
+            }
+
+            if (inputStream == null) {
+                return new ApiResponse(statusCode, "");
+            }
+
+            String encoding = connection.getContentEncoding();
+            if ("gzip".equalsIgnoreCase(encoding)) {
+                inputStream = new GZIPInputStream(inputStream);
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             StringBuilder response = new StringBuilder();
             String line;
@@ -143,14 +200,24 @@ public class TmdbService {
             }
             reader.close();
 
-            return response.toString();
+            return new ApiResponse(statusCode, response.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            return "";
+            return new ApiResponse(-1, "");
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
+        }
+    }
+
+    private static class ApiResponse {
+        private final int statusCode;
+        private final String body;
+
+        private ApiResponse(int statusCode, String body) {
+            this.statusCode = statusCode;
+            this.body = body;
         }
     }
 
@@ -165,3 +232,6 @@ public class TmdbService {
         return 0;
     }
 }
+
+
+

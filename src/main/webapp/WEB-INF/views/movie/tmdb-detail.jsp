@@ -13,26 +13,13 @@
             crossorigin="anonymous">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="${pageContext.request.contextPath}/">MovieRental</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tmdbNav"
-                aria-controls="tmdbNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="tmdbNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/movies/tmdb/popular">TMDB Browse</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">My Rentals</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<%@ include file="/WEB-INF/views/common/navbar.jsp" %>
 
 <main class="container py-4">
+    <c:if test="${not empty error}">
+        <div class="alert alert-warning">${error}</div>
+    </c:if>
+
     <div class="row g-4">
         <div class="col-md-4">
             <c:if test="${not empty tmdbMovie.poster_path}">
@@ -48,17 +35,48 @@
                 <p class="mb-2"><strong>Genres:</strong> ${tmdbMovie.genres}</p>
                 <p class="mb-4"><strong>Overview:</strong> ${tmdbMovie.overview}</p>
 
-                <div class="d-flex flex-wrap gap-2">
-                    <form action="${pageContext.request.contextPath}/movies/tmdb/import/${tmdbMovie.id}" method="post" class="mb-0">
-                        <input type="hidden" name="type" value="NEW">
-                        <button type="submit" class="btn btn-primary">Import as New Release</button>
-                    </form>
-                    <form action="${pageContext.request.contextPath}/movies/tmdb/import/${tmdbMovie.id}" method="post" class="mb-0">
-                        <input type="hidden" name="type" value="CLASSIC">
-                        <button type="submit" class="btn btn-outline-primary">Import as Classic</button>
-                    </form>
-                    <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/movies/tmdb/popular">Back to TMDB Browse</a>
-                </div>
+                <c:choose>
+                    <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'ADMIN'}">
+                        <form action="${pageContext.request.contextPath}/movies/tmdb/import/${tmdbMovie.id}" method="post">
+                            <div class="mb-3">
+                                <label for="rentalPrice" class="form-label fw-bold">Set Rental Price ($)</label>
+                                <input type="number" id="rentalPrice" name="rentalPrice"
+                                       class="form-control" step="0.01" min="0.01"
+                                       placeholder="e.g. 3.99" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="type" class="form-label fw-bold">Movie Type</label>
+                                <select id="type" name="type" class="form-select" required>
+                                    <option value="NEW">New Release</option>
+                                    <option value="CLASSIC">Classic</option>
+                                </select>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">Add to Catalog</button>
+                                <a href="${pageContext.request.contextPath}/movies/tmdb/popular"
+                                   class="btn btn-outline-secondary">Back to Browse</a>
+                            </div>
+                        </form>
+                    </c:when>
+
+                    <c:when test="${sessionScope.loggedInUser != null && sessionScope.loggedInUser.role == 'USER'}">
+                        <div class="d-flex gap-2">
+                            <a href="${pageContext.request.contextPath}/rentals/rent/${tmdbMovie.id}"
+                               class="btn btn-primary">Rent This Movie</a>
+                            <a href="${pageContext.request.contextPath}/movies/tmdb/popular"
+                               class="btn btn-outline-secondary">Back to Browse</a>
+                        </div>
+                    </c:when>
+
+                    <c:otherwise>
+                        <div class="d-flex gap-2">
+                            <a href="${pageContext.request.contextPath}/users/login"
+                               class="btn btn-warning">Login to Rent</a>
+                            <a href="${pageContext.request.contextPath}/movies/tmdb/popular"
+                               class="btn btn-outline-secondary">Back to Browse</a>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>

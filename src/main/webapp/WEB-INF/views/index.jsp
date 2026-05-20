@@ -1,4 +1,5 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,25 +13,7 @@
         crossorigin="anonymous">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand fw-semibold" href="${pageContext.request.contextPath}/">Movie Platform</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/tmdb/popular">Movies</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/rentals/my">My Rentals</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/reviews">Reviews</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/users/login">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/users/register">Register</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <%@ include file="/WEB-INF/views/common/navbar.jsp" %>
 
     <main class="container py-5">
         <section class="py-5 text-center">
@@ -53,13 +36,13 @@
             </div>
             <div class="col-md-4">
                 <div class="card h-100 p-4 border-0 shadow-sm">
-                    <h5 class="fw-bold">📦 Rent & Return</h5>
+                    <h5 class="fw-bold">ðŸ“¦ Rent & Return</h5>
                     <p class="text-muted">Rent movies and manage your rental history easily.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 p-4 border-0 shadow-sm">
-                    <h5 class="fw-bold">⭐ Reviews</h5>
+                    <h5 class="fw-bold">⭐ Reviews</h5>
                     <p class="text-muted">Share your thoughts and read reviews from others.</p>
                 </div>
             </div>
@@ -72,3 +55,5 @@
         crossorigin="anonymous"></script>
 </body>
 </html>
+
+

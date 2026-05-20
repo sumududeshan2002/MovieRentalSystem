@@ -3,9 +3,12 @@ package com.se1020.movierental.controller;
 import com.se1020.movierental.model.ClassicMovie;
 import com.se1020.movierental.model.Movie;
 import com.se1020.movierental.model.NewRelease;
+import com.se1020.movierental.model.User;
 import com.se1020.movierental.service.MovieService;
 import com.se1020.movierental.service.TmdbService;
+import com.se1020.movierental.util.FileUtils;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 @Controller
@@ -53,13 +57,19 @@ public class MovieController {
     }
 
     @GetMapping("/admin/list")
-    public String adminMovieList(Model model) {
+    public String adminMovieList(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         model.addAttribute("movies", movieService.getAllMovies());
         return "movie/admin/movie-list";
     }
 
     @GetMapping("/admin/add")
-    public String showAddMovieForm() {
+    public String showAddMovieForm(HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         return "movie/admin/add-movie";
     }
 
@@ -70,7 +80,11 @@ public class MovieController {
                            @RequestParam String director,
                            @RequestParam int year,
                            @RequestParam boolean available,
-                           @RequestParam(required = false) Double rentalPrice) {
+                           @RequestParam(required = false) Double rentalPrice,
+                           HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         String movieId = movieService.generateMovieId();
         Movie movie;
 
@@ -86,7 +100,10 @@ public class MovieController {
     }
 
     @GetMapping("/admin/edit/{movieId}")
-    public String showEditMovieForm(@PathVariable String movieId, Model model) {
+    public String showEditMovieForm(@PathVariable String movieId, HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         model.addAttribute("movie", movieService.getMovieById(movieId));
         return "movie/admin/edit-movie";
     }
@@ -99,7 +116,11 @@ public class MovieController {
                             @RequestParam String director,
                             @RequestParam int year,
                             @RequestParam boolean available,
-                            @RequestParam(required = false) Double rentalPrice) {
+                            @RequestParam(required = false) Double rentalPrice,
+                            HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         Movie movie;
 
         if ("NEW".equalsIgnoreCase(type)) {
@@ -114,7 +135,10 @@ public class MovieController {
     }
 
     @GetMapping("/admin/delete/{movieId}")
-    public String deleteMovie(@PathVariable String movieId) {
+    public String deleteMovie(@PathVariable String movieId, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         movieService.deleteMovie(movieId);
         return "redirect:/movies/admin/list";
     }
@@ -134,14 +158,62 @@ public class MovieController {
 
     @GetMapping("/tmdb/detail/{tmdbId}")
     public String tmdbMovieDetail(@PathVariable String tmdbId, Model model) {
-        model.addAttribute("tmdbMovie", tmdbService.getMovieDetails(tmdbId));
+        Map<String, String> tmdbMovie = tmdbService.getMovieDetails(tmdbId);
+        if (tmdbMovie.isEmpty() || tmdbMovie.get("title") == null || tmdbMovie.get("title").trim().isEmpty()) {
+            model.addAttribute("error", "Movie details could not be loaded. Please try another movie.");
+        }
+        model.addAttribute("tmdbMovie", tmdbMovie);
         return "movie/tmdb-detail";
     }
 
     @PostMapping("/tmdb/import/{tmdbId}")
-    public String importTmdbMovie(@PathVariable String tmdbId, @RequestParam String type) {
-        movieService.getAllMovies();
-        tmdbService.importMovieToFile(tmdbService.getMovieDetails(tmdbId), movieFilePath, type);
+    public String importTmdbMovie(@PathVariable String tmdbId,
+                                  @RequestParam String type,
+                                  @RequestParam(required = false) String rentalPrice,
+                                  HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
+        Map<String, String> tmdbData = tmdbService.getMovieDetails(tmdbId);
+
+        String movieId = "T" + tmdbData.get("id");
+        String title = tmdbData.get("title");
+        String genre = tmdbData.get("genres");
+        String director = "TMDB";
+
+        // Keep CSV column positions stable for MovieService parsing.
+        if (title != null) {
+            title = title.replace(",", " ");
+        }
+        if (genre != null) {
+            genre = genre.replace(",", " /");
+        }
+        director = director.replace(",", " ");
+        int year = 0;
+        try {
+            String releaseDate = tmdbData.get("release_date");
+            if (releaseDate != null && releaseDate.length() >= 4) {
+                year = Integer.parseInt(releaseDate.substring(0, 4));
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        double price = 2.99;
+        if (rentalPrice != null && !rentalPrice.isEmpty()) {
+            try {
+                price = Double.parseDouble(rentalPrice);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        Movie movie;
+        if ("NEW".equals(type)) {
+            movie = new NewRelease(movieId, title, genre, director, year, true, price);
+        } else {
+            movie = new ClassicMovie(movieId, title, genre, director, year, true);
+        }
+
+        FileUtils.appendLine(movieFilePath, movie.toString());
         return "redirect:/movies/admin/list";
     }
 
@@ -153,5 +225,10 @@ public class MovieController {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to load TMDB API key", e);
         }
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        return user != null && "ADMIN".equals(user.getRole());
     }
 }

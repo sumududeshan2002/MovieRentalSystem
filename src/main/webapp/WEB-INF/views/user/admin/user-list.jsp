@@ -13,22 +13,7 @@
             crossorigin="anonymous">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="${pageContext.request.contextPath}/">MovieRental Admin</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-                aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/movies/admin/list">Movie List</a></li>
-                <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/users/admin/list">User List</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/">Home</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<%@ include file="/WEB-INF/views/common/admin-navbar.jsp" %>
 
 <main class="container py-4">
     <h1 class="h3 mb-4">Manage Users</h1>
@@ -66,8 +51,7 @@
                             <td>
                                 <a class="btn btn-sm btn-outline-primary"
                                    href="${pageContext.request.contextPath}/users/admin/detail/${user.userId}">View</a>
-                                <a class="btn btn-sm btn-danger"
-                                   href="${pageContext.request.contextPath}/users/admin/delete/${user.userId}">Delete</a>
+                                <a class="btn btn-sm btn-danger" href="${pageContext.request.contextPath}/users/admin/delete/${user.userId}" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
                             </td>
                         </tr>
                     </c:forEach>
@@ -84,3 +68,4 @@
         crossorigin="anonymous"></script>
 </body>
 </html>
+

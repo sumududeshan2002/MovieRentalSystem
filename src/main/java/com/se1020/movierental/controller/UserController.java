@@ -27,7 +27,7 @@ public class UserController {
 
     public UserController(ServletContext servletContext) {
         this.servletContext = servletContext;
-        String userFilePath = servletContext.getRealPath("/WEB-INF/classes/data/users.txt");
+        String userFilePath = servletContext.getRealPath("/WEB-INF/") + "../../resources/data/users.txt";
         this.userService = new UserService(userFilePath);
     }
 
@@ -71,6 +71,9 @@ public class UserController {
         }
 
         session.setAttribute("loggedInUser", user);
+        if ("ADMIN".equals(user.getRole())) {
+            return "redirect:/admin/dashboard";
+        }
         return "redirect:/";
     }
 
@@ -134,21 +137,35 @@ public class UserController {
     }
 
     @GetMapping("/admin/list")
-    public String adminUserList(Model model) {
+    public String adminUserList(HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
         return "user/admin/user-list";
     }
 
     @GetMapping("/admin/delete/{userId}")
-    public String adminDeleteUser(@PathVariable String userId) {
+    public String adminDeleteUser(@PathVariable String userId, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         userService.deleteUser(userId);
         return "redirect:/users/admin/list";
     }
 
     @GetMapping("/admin/detail/{userId}")
-    public String adminUserDetail(@PathVariable String userId, Model model) {
+    public String adminUserDetail(@PathVariable String userId, HttpSession session, Model model) {
+        if (!isAdmin(session)) {
+            return "redirect:/users/login";
+        }
         model.addAttribute("user", userService.getUserById(userId));
         return "user/admin/user-detail";
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        return user != null && "ADMIN".equals(user.getRole());
     }
 }
